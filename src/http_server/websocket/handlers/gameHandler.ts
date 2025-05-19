@@ -17,10 +17,10 @@ export function handleGameRequests(ws: PlayerWebSocket, type: string, data: Atta
 
 // Handle attack request
 function handleAttack(ws: PlayerWebSocket, data: AttackData): void {
-  const { idGame, x, y, idPlayer } = data;
+  const { gameId, x, y, indexPlayer } = data;
 
   // Find the game
-  const game = db.games.find(g => g.idGame === idGame);
+  const game = db.games.find(g => g.gameId === gameId);
   if (!game) {
     sendMessage(ws, 'attack', {
       error: true,
@@ -39,7 +39,7 @@ function handleAttack(ws: PlayerWebSocket, data: AttackData): void {
   }
 
   // Find the player in the game
-  const attackerIndex = game.players.findIndex(p => p.idPlayer === idPlayer);
+  const attackerIndex = game.players.findIndex(p => p.idPlayer === indexPlayer);
   if (attackerIndex === -1) {
     sendMessage(ws, 'attack', {
       error: true,
@@ -85,10 +85,10 @@ function handleAttack(ws: PlayerWebSocket, data: AttackData): void {
 
 // Handle random attack request
 function handleRandomAttack(ws: PlayerWebSocket, data: AttackData): void {
-  const { idGame, idPlayer } = data;
+  const { gameId, indexPlayer } = data;
 
   // Find the game
-  const game = db.games.find(g => g.idGame === idGame);
+  const game = db.games.find(g => g.gameId === gameId);
   if (!game) {
     sendMessage(ws, 'randomAttack', {
       error: true,
@@ -107,7 +107,7 @@ function handleRandomAttack(ws: PlayerWebSocket, data: AttackData): void {
   }
 
   // Find the player in the game
-  const attackerIndex = game.players.findIndex(p => p.idPlayer === idPlayer);
+  const attackerIndex = game.players.findIndex(p => p.idPlayer === indexPlayer);
   if (attackerIndex === -1) {
     sendMessage(ws, 'randomAttack', {
       error: true,
@@ -186,7 +186,7 @@ function processAttack(game: Game, attackerIndex: number, defenderIndex: number,
         wss.clients.forEach(client => {
           const playerClient = client as PlayerWebSocket;
           const playerIndex = game.players.findIndex(p =>
-            p.playerIndex === playerClient.playerIndex
+            p.playerIndex === playerClient.indexPlayer
           );
 
           if (playerIndex !== -1) {
@@ -326,7 +326,7 @@ function sendAttackMessage(game: Game, attackerIndex: number, x: number, y: numb
   wss.clients.forEach(client => {
     const playerClient = client as PlayerWebSocket;
     const playerIndex = game.players.findIndex(p =>
-      p.playerIndex === playerClient.playerIndex
+      p.playerIndex === playerClient.indexPlayer
     );
 
     if (playerIndex !== -1) {
@@ -344,7 +344,7 @@ function sendTurnMessage(game: Game): void {
   wss.clients.forEach(client => {
     const playerClient = client as PlayerWebSocket;
     const playerIndex = game.players.findIndex(p =>
-      p.playerIndex === playerClient.playerIndex
+      p.playerIndex === playerClient.indexPlayer
     );
 
     if (playerIndex !== -1) {
